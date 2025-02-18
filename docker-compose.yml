@@ -5,6 +5,21 @@ services:
       - "6543:5432"
     environment:
       POSTGRES_PASSWORD: Password123
-    # volumes:
-    #   - pgdata:/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=Password123
+    volumes:
+      - mongo-data:/data/db
+volumes:
+  pgdata:
+    driver: local
+  mongo-data:
+    driver: local
+
 
