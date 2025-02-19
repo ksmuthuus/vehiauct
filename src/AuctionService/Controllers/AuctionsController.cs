@@ -3,7 +3,8 @@ using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Http;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,14 @@ namespace AuctionService.Controllers
     {
         private readonly AuctionDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public AuctionsController(AuctionDbContext context, IMapper mapper)
+        public AuctionsController(AuctionDbContext context, IMapper mapper,
+            IPublishEndpoint publishEndpoint)
         {
             _context = context;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -59,9 +63,17 @@ namespace AuctionService.Controllers
             // TODO: add current user as seller
             auction.Seller = "user";
             _context.Auctions.Add(auction);
+
+            // Publish to Queue (before saving to DB for Atomicity)
+            var newAuction = _mapper.Map<AuctionDto>(auction);
+            await _publishEndpoint.Publish(_mapper.Map<AuctionCreated>(newAuction));
+
             var result = await _context.SaveChangesAsync() > 0;
             if (!result) return BadRequest("Couldn't save changes to DB");
-            return CreatedAtAction(nameof(GetAuction), new { id = auction.Id }, _mapper.Map<AuctionDto>(auction));
+
+
+            // Return 201 Created
+            return CreatedAtAction(nameof(GetAuction), new { id = auction.Id }, newAuction);
         }
 
         [HttpPut("{id}")]
@@ -78,6 +90,10 @@ namespace AuctionService.Controllers
             auction.Item.Color = auctionDto.Color ?? auction.Item.Color;
             auction.Item.Mileage = auctionDto.Mileage ?? auction.Item.Mileage;
             auction.Item.Year = auctionDto.Year ?? auction.Item.Year;
+
+            // Publish to Queue (before saving to DB for Atomicity)
+            await _publishEndpoint.Publish(_mapper.Map<AuctionUpdated>(auction));
+
             var result = await _context.SaveChangesAsync() > 0;
             if (!result) return BadRequest("Couldn't save changes to DB");
             return Ok();
@@ -91,6 +107,8 @@ namespace AuctionService.Controllers
 
             // TODO: Check seller == username
             _context.Auctions.Remove(auction);
+            // Publish to Queue (before saving to DB for Atomicity)
+            await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
             var result = await _context.SaveChangesAsync() > 0;
             if (!result) return BadRequest("Couldn't save changes to DB");
             return Ok();

@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres
     ports:
-      - "6543:5432"
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: Password123
     volumes:
@@ -16,6 +16,15 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=Password123
     volumes:
       - mongo-data:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
 volumes:
   pgdata:
     driver: local

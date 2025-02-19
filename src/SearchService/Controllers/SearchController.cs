@@ -36,13 +36,13 @@ namespace SearchService.Controllers
             query = !string.IsNullOrEmpty(searchParams.Seller) ? query.Match(x => x.Seller == searchParams.Seller) : query;
             query = !string.IsNullOrEmpty(searchParams.Winner) ? query.Match(x => x.Winner == searchParams.Winner) : query;
             query.PageNumber(searchParams.PageNumber).PageSize(searchParams.PageSize);
+
             var result = await query.ExecuteAsync();
             return Ok(new
             {
-                items = result.Results,
+                results = result.Results,
                 pageCount = result.PageCount,
                 totalCount = result.TotalCount
-
             });
         }
     }
