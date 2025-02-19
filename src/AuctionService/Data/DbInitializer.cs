@@ -6,22 +6,22 @@ namespace AuctionService.Data;
 
 public class DbInitializer
 {
-  public static void InitDb(WebApplication app)
-  {
-    using var scope = app.Services.CreateScope();
-    SeedData(scope.ServiceProvider.GetRequiredService<AuctionDbContext>());
-  }
-
-  private static void SeedData(AuctionDbContext context)
-  {
-    context.Database.Migrate();
-    if (context.Auctions.Any())
+    public static void InitDb(IHost app)
     {
-      Console.WriteLine("Database already seeded");
-      return;
+        using var scope = app.Services.CreateScope();
+        SeedData(scope.ServiceProvider.GetRequiredService<AuctionDbContext>());
     }
 
-    var auctions = new List<Auction>()
+    private static void SeedData(AuctionDbContext context)
+    {
+        context.Database.Migrate();
+        if (context.Auctions.Any())
+        {
+            Console.WriteLine("Database already seeded");
+            return;
+        }
+
+        var auctions = new List<Auction>()
     {
       //auctions
       // 1 Ford GT
@@ -204,7 +204,7 @@ public class DbInitializer
       }
     };
 
-    context.AddRange(auctions);
-    context.SaveChanges();
-  }
+        context.AddRange(auctions);
+        context.SaveChanges();
+    }
 }
