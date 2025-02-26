@@ -1,3 +1,4 @@
+using AuctionService.Consumers;
 using AuctionService.Data;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -22,8 +23,15 @@ public class Startup(IConfiguration config)
         o.UsePostgres();
         o.UseBusOutbox();
       });
+      x.AddConsumersFromNamespaceContaining<AuctionFinishedConsumer>();
+      x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction"));
       x.UsingRabbitMq((context, cfg) =>
       {
+        cfg.Host(config["RabbitMq:Host"], "/", host =>
+        {
+          host.Username(config.GetValue("RabbitMq:Username", "guest"));
+          host.Password(config.GetValue("RabbitMq:Password", "guest"));
+        });
         cfg.ConfigureEndpoints(context);
       });
     });

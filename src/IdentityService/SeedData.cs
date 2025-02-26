@@ -20,62 +20,62 @@ public class SeedData
 
         if (userMgr.Users.Any()) return;
 
-        var alice = userMgr.FindByNameAsync("muthu").Result;
+        var alice = userMgr.FindByNameAsync("alice").Result;
         if (alice == null)
         {
             alice = new ApplicationUser
             {
-                UserName = "muthu",
-                Email = "muthuks@email.com",
+                UserName = "alice",
+                Email = "alice@email.com",
                 EmailConfirmed = true,
             };
-            var result = userMgr.CreateAsync(alice, "Pass123!").Result;
+            var result = userMgr.CreateAsync(alice, "Pass123$").Result;
             if (!result.Succeeded)
             {
                 throw new Exception(result.Errors.First().Description);
             }
 
             result = userMgr.AddClaimsAsync(alice, [
-                            new Claim(JwtClaimTypes.Name, "Muthu Venkatachalam"),
+                            new Claim(JwtClaimTypes.Name, "Alice Smith"),
                         ]).Result;
             if (!result.Succeeded)
             {
                 throw new Exception(result.Errors.First().Description);
             }
-            Log.Debug("muthu created");
+            Log.Debug("alice created");
         }
         else
         {
-            Log.Debug("muthu already exists");
+            Log.Debug("alice already exists");
         }
 
-        var bob = userMgr.FindByNameAsync("raj").Result;
+        var bob = userMgr.FindByNameAsync("bob").Result;
         if (bob == null)
         {
             bob = new ApplicationUser
             {
-                UserName = "raj",
-                Email = "rajraja@email.com",
+                UserName = "bob",
+                Email = "bob@email.com",
                 EmailConfirmed = true
             };
-            var result = userMgr.CreateAsync(bob, "Pass123!").Result;
+            var result = userMgr.CreateAsync(bob, "Pass123$").Result;
             if (!result.Succeeded)
             {
                 throw new Exception(result.Errors.First().Description);
             }
 
             result = userMgr.AddClaimsAsync(bob, [
-                            new Claim(JwtClaimTypes.Name, "Raj Raja"),
+                            new Claim(JwtClaimTypes.Name, "Bob Smith"),
                         ]).Result;
             if (!result.Succeeded)
             {
                 throw new Exception(result.Errors.First().Description);
             }
-            Log.Debug("raj created");
+            Log.Debug("bob created");
         }
         else
         {
-            Log.Debug("raj already exists");
+            Log.Debug("bob already exists");
         }
     }
 }
