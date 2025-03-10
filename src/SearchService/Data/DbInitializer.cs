@@ -26,19 +26,19 @@ public class DbInitializer
     .CreateAsync();
 
     var count = await DB.CountAsync<Item>();
-    // if (count == 0)
-    // {
-    //   Console.WriteLine("Data Seeding in progress....");
-    //   var itemData = await File.ReadAllTextAsync("Data/auctions.json");
+    if (count == 0)
+    {
+      Console.WriteLine("Data Seeding in progress....");
+      var itemData = await File.ReadAllTextAsync("Data/auctions.json");
 
 
-    //   var items = JsonSerializer.Deserialize<List<Item>>(itemData, _serializerOptions);
-    //   await DB.SaveAsync(items);
-    // }
-    using var scope = app.Services.CreateScope();
-    var httpClient = scope.ServiceProvider.GetRequiredService<AuctionSvcHttpClient>();
-    var items = await httpClient.GetItemsForSearchDb();
-    Console.WriteLine(items.Count + " items fetched from AuctionService");
-    if (items.Count > 0) await DB.SaveAsync(items);
+      var items = JsonSerializer.Deserialize<List<Item>>(itemData, _serializerOptions);
+      await DB.SaveAsync(items);
+    }
+    // using var scope = app.Services.CreateScope();
+    // var httpClient = scope.ServiceProvider.GetRequiredService<AuctionSvcHttpClient>();
+    // var items = await httpClient.GetItemsForSearchDb();
+    // Console.WriteLine(items.Count + " items fetched from AuctionService");
+    // if (items.Count > 0) await DB.SaveAsync(items);
   }
 }
