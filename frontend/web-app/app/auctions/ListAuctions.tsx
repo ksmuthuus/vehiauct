@@ -24,7 +24,9 @@ const params = useParamsStore(useShallow((state) => ({
   pageSize: state.pageSize,
   searchTerm: state.searchTerm,
   orderBy: state.orderBy,
-  filterBy: state.filterBy
+  filterBy: state.filterBy,
+  seller: state.seller,
+  winner: state.winner
 })))
 
 const setParams = useParamsStore((state) => state.setParams)
